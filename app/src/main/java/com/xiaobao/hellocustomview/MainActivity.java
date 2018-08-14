@@ -1,11 +1,14 @@
 package com.xiaobao.hellocustomview;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Toast;
+
+import com.xiaobao.hellocustomview.view.HelloBezierView;
+import com.xiaobao.hellocustomview.view.HelloPathView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,15 +29,17 @@ public class MainActivity extends AppCompatActivity {
         mActivityAdapter.setOnItemClickListener(onItemClickListener);
         mRecyclerView.setAdapter(mActivityAdapter);
 
-        for (int i = 0; i < 10; i++) {
-            mActivityAdapter.addAdapterData(new ActivityAdapter.Data("自定义View基础-坐标系", null));
-        }
+        mActivityAdapter.addAdapterData(new ActivityAdapter.Data("Path之基本操作", HelloPathView.class));
+        mActivityAdapter.addAdapterData(new ActivityAdapter.Data("Path之贝塞尔曲线", HelloBezierView.class));
     }
 
     private ActivityAdapter.onItemClickListener onItemClickListener = new ActivityAdapter.onItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
-            Toast.makeText(MainActivity.this,mActivityAdapter.getAdapterData().get(position).title+","+position,Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, ShowViewActivity.class);
+            intent.setAction(mActivityAdapter.getAdapterData().get(position).title);
+            intent.putExtra(mActivityAdapter.getAdapterData().get(position).title, mActivityAdapter.getAdapterData().get(position).aClass.getSimpleName());
+            startActivity(intent);
         }
     };
 }
