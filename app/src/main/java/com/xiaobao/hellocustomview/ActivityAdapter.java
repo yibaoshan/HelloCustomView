@@ -14,7 +14,7 @@ import java.util.List;
 public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHolder> {
 
     private Context mContext;
-    private List<Data> mAdapterData;
+    private List<String> mAdapterData;
     private onItemClickListener mOnItemClickListener;
 
     public ActivityAdapter(Context mContext) {
@@ -24,17 +24,12 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
         }
     }
 
-    public void addAdapterData(Data data) {
+    public void addAdapterData(String data) {
         this.mAdapterData.add(data);
         this.notifyDataSetChanged();
     }
 
-    public void setAdapterData(List<Data> mAdapterData) {
-        this.mAdapterData = mAdapterData;
-        this.notifyDataSetChanged();
-    }
-
-    public List<Data> getAdapterData() {
+    public List<String> getAdapterData() {
         return mAdapterData;
     }
 
@@ -50,7 +45,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.button.setText(mAdapterData.get(position).title);
+        holder.button.setText(mAdapterData.get(position));
         holder.button.setOnClickListener(onClickListener);
         holder.button.setTag(position);
     }
@@ -82,14 +77,5 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
         void onItemClick(View view, int position);
     }
 
-    public static class Data {
-        String title;
-        Class aClass;
-
-        public Data(String title, Class aClass) {
-            this.title = title;
-            this.aClass = aClass;
-        }
-    }
 
 }

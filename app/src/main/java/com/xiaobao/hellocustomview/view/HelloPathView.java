@@ -56,6 +56,7 @@ public class HelloPathView extends View {
         mPaint = new Paint();
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setAntiAlias(true);
         mPaint.setStrokeWidth(5);
     }
 }
