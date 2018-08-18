@@ -1,6 +1,5 @@
 package com.xiaobao.hellocustomview;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,9 +7,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.xiaobao.hellocustomview.view.HelloBezierCircle;
 import com.xiaobao.hellocustomview.view.HelloBezierView;
 import com.xiaobao.hellocustomview.view.HelloPathView;
-import com.xiaobao.hellocustomview.view.HelloWaveView;
+import com.xiaobao.hellocustomview.view.HelloBezierWaveView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         addView("Path之基本操作", new HelloPathView(this));
         addView("Path之贝塞尔曲线", new HelloBezierView(this));
-        addView("Path之贝塞尔曲线-波浪", new HelloWaveView(this));
+        addView("Path之贝塞尔曲线-圆", new HelloBezierCircle(this));
+        addView("Path之贝塞尔曲线-波浪", new HelloBezierWaveView(this));
     }
 
     private void addView(String title, View view) {

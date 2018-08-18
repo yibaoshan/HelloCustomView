@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 
-public class HelloWaveView extends View {
+public class HelloBezierWaveView extends View {
 
     private Paint mPaint;
     private int mWidth, mHeight, offset;
@@ -21,12 +21,12 @@ public class HelloWaveView extends View {
 
     private static final String TAG = "HelloWaveView";
 
-    public HelloWaveView(Context context) {
+    public HelloBezierWaveView(Context context) {
         super(context);
         init();
     }
 
-    public HelloWaveView(Context context, @Nullable AttributeSet attrs) {
+    public HelloBezierWaveView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -60,7 +60,6 @@ public class HelloWaveView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        invalidate();
         return true;
     }
 
