@@ -9,8 +9,10 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 public class HelloBezierCircle extends View {
 
@@ -18,6 +20,7 @@ public class HelloBezierCircle extends View {
     private int mWidth, mHeight;
     private PointF p1_1, p1_2, p2_1, p2_2, p3_1, p3_2, p4_1, p4_2;
     private final double C = 0.551915024494f;
+    private static final String TAG = "HelloBezierCircle";
 
     public HelloBezierCircle(Context context) {
         super(context);
@@ -46,6 +49,8 @@ public class HelloBezierCircle extends View {
         path.cubicTo(p3_1.x, p3_1.y, p3_2.x, p3_2.y, p3_2.x, mHeight / 2);
         path.cubicTo(p4_1.x, p4_1.y, p4_2.x, p4_2.y, mWidth / 2, p4_2.y);
         canvas.drawPath(path, mPaint);
+
+        mPaint.setStrokeWidth(10);
 
         canvas.drawPoint(p1_1.x, p1_1.y, mPaint);
         canvas.drawPoint(p1_2.x, p1_2.y, mPaint);
@@ -87,15 +92,36 @@ public class HelloBezierCircle extends View {
     }
 
     private void start() {
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(p1_2.x, mWidth);
-        valueAnimator.setDuration(10000);
-        valueAnimator.setInterpolator(new DecelerateInterpolator());
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 2);
+        valueAnimator.setDuration(2000);
+        valueAnimator.setInterpolator(new LinearInterpolator());
         valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                p1_2.x = p1_2.x + ((float) animation.getAnimatedValue());
-                p2_1.x = p2_1.x + ((float) animation.getAnimatedValue());
+                float value = (float) animation.getAnimatedValue();
+                if (value < 1) {
+                    p1_2.x += value * 3.0;
+                    p2_1.x += value * 3.0;
+                    p3_2.x -= value * 3.0;
+                    p4_1.x -= value * 3.0;
+
+                    p1_1.x -= value * 3.0;
+                    p2_2.x -= value * 3.0;
+                    p3_1.x += value * 3.0;
+                    p4_2.x += value * 3.0;
+                } else {
+                    p1_2.x -= value;
+                    p2_1.x -= value;
+                    p3_2.x += value;
+                    p4_1.x += value;
+
+                    p1_1.x += value ;
+                    p2_2.x += value ;
+                    p3_1.x -= value ;
+                    p4_2.x -= value ;
+                }
+
                 postInvalidate();
             }
         });
