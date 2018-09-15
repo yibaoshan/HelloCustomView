@@ -11,6 +11,7 @@ import com.xiaobao.hellocustomview.view.HelloBezierCircle;
 import com.xiaobao.hellocustomview.view.HelloBezierView;
 import com.xiaobao.hellocustomview.view.HelloPathView;
 import com.xiaobao.hellocustomview.view.HelloBezierWaveView;
+import com.xiaobao.hellocustomview.view.HelloSpeedView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +41,11 @@ public class MainActivity extends AppCompatActivity {
         addView("Path之贝塞尔曲线", new HelloBezierView(this));
         addView("Path之贝塞尔曲线-圆", new HelloBezierCircle(this));
         addView("Path之贝塞尔曲线-波浪", new HelloBezierWaveView(this));
+        addView("速度表", new HelloSpeedView(this));
     }
 
     private void addView(String title, View view) {
-        if(viewList==null){
+        if (viewList == null) {
             viewList = new ArrayList<>();
         }
         viewList.add(view);
