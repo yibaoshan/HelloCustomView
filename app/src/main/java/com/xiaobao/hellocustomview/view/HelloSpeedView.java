@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -16,25 +17,32 @@ public class HelloSpeedView extends View {
 
     private int mWidth;
     private int mHeight;
-    private int mViewWidth;
+    private int mViewWidth;//圆的直径
     private int mOuterWidth;//外环宽度
-    private int mOuterDegrees;
+    private int mScaleWidth;//刻度宽度
+    private int mScaleSelectWidth;//刻度宽度
     private int mMiddleWidth;//中间白色环的宽度
+    private int mOuterDegrees;
     private int mMaxValue = 60;//码表最大值
     private int mIntervalValue = 10;//间隔
+    private int mBlurMaskFilterRadius = -1;//阴影范围
 
+    private int mScaleColor;//刻度颜色
+    private int mScaleSelectColor;//刻度选中颜色
     private int mOuterStartColor;//外环起始颜色
     private int mOuterEndColor;//外环结束颜色
-    private int mCircleColor;//圆盘颜色
+    private int mCircleStartColor;//内圆起始颜色
+    private int mCircleEndColor;//内圆结束颜色
 
     private BlurMaskFilter mOuterBlurMaskFilter;//外环的阴影程度
     private LinearGradient mOuterLinearGradient;//外环的渐变颜色
     private LinearGradient mMiddleLinearGradient;//中间环的渐变颜色
-    private LinearGradient mCircleLinearGradient;//里面的渐变颜色
+    private LinearGradient mCircleLinearGradient;//里面圆的渐变颜色
 
     private Paint mOuterPaint;//外环画笔
     private Paint mMiddlePaint;//中间环画笔
     private Paint mCirclePaint;//中心圆
+    private Paint mScalePaint;//刻度画笔
 
     private Paint mPaint;
 
@@ -48,17 +56,37 @@ public class HelloSpeedView extends View {
 
     private void init() {
 
+        mScaleWidth = (int) (mViewWidth/2/8.0);
+        mScaleSelectWidth = (int) (mViewWidth/2/10.0);
         mOuterWidth = (int) (mViewWidth / 2 / 100.0 * 12);
         mMiddleWidth = (int) (mViewWidth / 2 / 100.0);
 
-        mOuterStartColor = Color.rgb(75, 140, 200);
-        mOuterEndColor = Color.rgb(26, 40, 60);
-        mCircleColor = Color.rgb(69, 124, 185);
+        if (mScaleColor == 0) {
+            mScaleColor = Color.GRAY;
+        }
+        if (mScaleSelectColor == 0) {
+            mScaleSelectColor = Color.WHITE;
+        }
+        if (mOuterStartColor == 0) {
+            mOuterStartColor = Color.rgb(75, 140, 200);
+        }
+        if (mOuterEndColor == 0) {
+            mOuterEndColor = Color.rgb(26, 40, 60);
+        }
+        if (mCircleStartColor == 0) {
+            mCircleStartColor = Color.rgb(69, 124, 185);
+        }
+        if (mCircleEndColor == 0) {
+            mCircleEndColor = Color.rgb(64, 114, 170);
+        }
+        if (mBlurMaskFilterRadius == -1) {
+            mBlurMaskFilterRadius = 50;
+        }
 
-        mOuterBlurMaskFilter = new BlurMaskFilter(50, BlurMaskFilter.Blur.SOLID);
+        mOuterBlurMaskFilter = new BlurMaskFilter(mBlurMaskFilterRadius, BlurMaskFilter.Blur.SOLID);
         mOuterLinearGradient = new LinearGradient(0, 0, 0, (float) (mViewWidth / 2.5), new int[]{mOuterStartColor, mOuterEndColor}, null, LinearGradient.TileMode.CLAMP);
         mMiddleLinearGradient = new LinearGradient(0, 0, 0, mViewWidth / 3, new int[]{mOuterStartColor, Color.WHITE}, null, LinearGradient.TileMode.CLAMP);
-        mCircleLinearGradient = new LinearGradient(0, mViewWidth / 2, 0, -mViewWidth / 2, new int[]{Color.rgb(69, 124, 185), Color.rgb(64, 114, 170)}, null, LinearGradient.TileMode.CLAMP);
+        mCircleLinearGradient = new LinearGradient(0, mViewWidth / 2, 0, -mViewWidth / 2, new int[]{mCircleStartColor, mCircleEndColor}, null, LinearGradient.TileMode.CLAMP);
 
         mOuterPaint = new Paint();
         mOuterPaint.setStrokeWidth(mOuterWidth);
@@ -78,11 +106,16 @@ public class HelloSpeedView extends View {
 
         mCirclePaint = new Paint();
         mCirclePaint.setStyle(Paint.Style.FILL);
-        mCirclePaint.setColor(mCircleColor);
         mCirclePaint.setMaskFilter(mOuterBlurMaskFilter);
         mCirclePaint.setAntiAlias(true);
         mMiddlePaint.setShader(mCircleLinearGradient);
         setLayerType(LAYER_TYPE_SOFTWARE, mCirclePaint);
+
+        mScalePaint = new Paint();
+        mScalePaint.setAntiAlias(true);
+        mScalePaint.setColor(mScaleColor);
+        mScalePaint.setStyle(Paint.Style.FILL);
+        mScalePaint.setStrokeWidth(mMiddleWidth);
 
         mPaint = new Paint();
         mPaint.setColor(Color.RED);
@@ -104,29 +137,31 @@ public class HelloSpeedView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.translate(mWidth / 2, mHeight / 2);//把坐标移到中间
+
+//        canvas.drawCircle(0, 0, (float) (mViewWidth / 2 - (mOuterWidth * 1.5) - mMiddleWidth), mMiddlePaint);//画中间白色的圆
         drawCircle(canvas);//画内圆
-//        drawOuter(canvas);
+        drawOuter(canvas);
+        drawScale(canvas);
     }
 
+    //画外圆
     private void drawOuter(Canvas canvas) {
         canvas.save();
         canvas.rotate(mOuterDegrees);
         canvas.drawCircle(0, 0, mViewWidth / 2 - mOuterWidth, mOuterPaint);
-        canvas.drawCircle(0, 0, (float) (mViewWidth / 2 - (mOuterWidth * 1.5)), mMiddlePaint);
         canvas.restore();
     }
 
+    //画内圆
     private void drawCircle(Canvas canvas) {
-        mOuterBlurMaskFilter = new BlurMaskFilter(100, BlurMaskFilter.Blur.NORMAL);
-        canvas.drawCircle(0, 0, (float) (mViewWidth / 2 - (mOuterWidth*1.5)), mCirclePaint);
-//        canvas.drawCircle(0, 0, (float) (mViewWidth / 2 - (mOuterWidth * 1.5) -mMiddleWidth/2.0), mCirclePaint);
-//        mOuterBlurMaskFilter = new BlurMaskFilter(100, BlurMaskFilter.Blur.NORMAL);
-//        mCirclePaint.setStrokeWidth(mMiddleWidth);
-//        mCirclePaint.setStyle(Paint.Style.FILL);
-//        canvas.drawCircle(0, 0, (float) (mViewWidth / 2 - (mOuterWidth*1.5)), mCirclePaint);
-//        mCirclePaint.setStyle(Paint.Style.FILL);
-//        mOuterBlurMaskFilter = new BlurMaskFilter(50, BlurMaskFilter.Blur.SOLID);
-//        mCircleLinearGradient = new LinearGradient(0, mViewWidth / 2, 0, -mViewWidth / 2, new int[]{Color.rgb(69, 124, 185), Color.rgb(64, 114, 170)}, null, LinearGradient.TileMode.CLAMP);
+        canvas.drawCircle(0, 0, mViewWidth / 2 - mOuterWidth, mCirclePaint);
+    }
+
+    //画刻度
+    private void drawScale(Canvas canvas) {
+        PointF p1 = new PointF((float) (-mViewWidth/2+mOuterWidth*2.5),0);
+        PointF p2 = new PointF(p1.x+mScaleWidth,0);
+        canvas.drawLine(p1.x, p1.y, p2.x, p2.y, mScalePaint);
     }
 
 
